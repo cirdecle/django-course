@@ -36,19 +36,62 @@
 </nav>
 
 <div class="container-fluid">
-    {% if grade > 80 %}
+    {% if grade >= 75 %}
     <div class="alert alert-success">
-       <!--HINT Display passed info -->
+       <b>Congratulations, {{user.first_name}}!</b> You have passed the exam and completed the course with a score of {{grade}} / {{total}}.
     </div>
         {% else %}
         <div class="alert alert-danger">
-            <!--HINT Display failed info -->
+            <b>Failed</b> Sorry, {{user.first_name}}! You have failed the exam with a score of {{grade}} / {{total}}.
         </div>
         <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
         {% endif %}
         <div class="card-columns-vertical mt-1">
         <h5 class="">Exam results</h5>
             <!--HINT Display exam results-->
+            <!-- <div class="container">
+                {% for question in course.question_set.all %}
+                    <div class="card mt-1">
+                        <div class="card-header"><h5>{{ question.question_text }}</h5></div>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% for choice in question.choice_set.all %}
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox" name="choice_{{choice.id}}"
+                                        id="{{choice.id}}" value="{{choice.id}}">{{choice.choice_text}}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div> -->
+            <div class="container-fluid">
+                <div class="card-columns-vertical">
+                {% for question in course.question_set.all %}
+                    <div class="card mt-1">
+                        <div class="card-header"><h5>{{question.question_text}}</h5></div>
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <!-- Go through the choices for this question -->
+                            {% for choice in question.choice_set.all %}
+                                <!-- If the choice was correct, should be in green -->
+                                {% if choice.is_correct and choice in choices %}
+                                    <p style="color:green;">Correct answer: {{choice.choice_text}}</p>
+                                {% elif choice.is_correct and choice not in choices %}
+                                    <p style="color:#dbbe2c;">Not selected: {{choice.choice_text}}</p>
+                                {% elif not choice.is_correct and choice in choices %}
+                                    <p style="color:red;">Incorrect answer: {{choice.choice_text}}</p>
+                                {% else %}
+                                    <p>{{choice.choice_text}}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </body>
